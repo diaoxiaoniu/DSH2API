@@ -207,7 +207,10 @@ class RemoteHarnessBackend:
             "method": endpoint,
             "payload": args,
         }
-        async with httpx.AsyncClient(timeout=30, follow_redirects=False) as client:
+        # The DSH instance is commonly reachable directly even when the host
+        # has a system proxy configured. Avoid inheriting a flaky local proxy
+        # for both RPC and WebSocket traffic.
+        async with httpx.AsyncClient(timeout=30, follow_redirects=False, trust_env=False) as client:
             response = await client.post(
                 f"{self.settings.remote_url}/api/{endpoint}",
                 headers={"Cookie": cookie, "Content-Type": "application/json"},
@@ -240,6 +243,7 @@ class RemoteHarnessBackend:
                     f"{ws_url}/api/events.mux",
                     additional_headers={"Cookie": cookie},
                     origin=self.settings.remote_url,
+                    proxy=None,
                     open_timeout=20,
                     close_timeout=5,
                     # The hosted gateway may not answer protocol-level pings
