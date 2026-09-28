@@ -59,6 +59,21 @@ def test_render_user_question():
     assert "2. 直接 ping" in rendered
 
 
+def test_render_messages_strips_cherry_claude_code_system():
+    rendered = render_messages([
+        {
+            "role": "system",
+            "content": "x-anthropic-billing-header: test;\nYou are Claude Code, Anthropic's official CLI.",
+        },
+        {"role": "system", "content": "请使用简体中文"},
+        {"role": "user", "content": "你好"},
+    ])
+    assert "Claude Code" not in rendered
+    assert "x-anthropic-billing-header" not in rendered
+    assert "请使用简体中文" in rendered
+    assert "你好" in rendered
+
+
 def test_models(monkeypatch):
     response = client(monkeypatch).get("/v1/models", headers=auth_headers())
     assert response.status_code == 200

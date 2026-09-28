@@ -18,9 +18,11 @@
 - `POST /v1/messages`（Anthropic Messages，适用于 Cherry Studio 智能体）
 - Bearer API Key 与 `x-api-key` 鉴权
 - 普通响应与 SSE 流式响应
+- 自动过滤 Cherry Studio Agent 重复注入的 Claude Code 系统提示词
 
 目前 Harness 会在一轮任务提交答案后，桥接器才开始输出 SSE，因此不是逐 token
 实时流。Harness 发起的交互式选择题会转换成普通聊天文本，避免客户端一直等待。
+普通自定义系统提示词仍会保留；只有具有明确特征的 Claude Code 自动提示词会被过滤。
 
 ## 快速开始：LightVela WebUI
 

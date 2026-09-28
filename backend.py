@@ -43,6 +43,16 @@ def message_text(content: Any) -> str:
     return "\n".join(part for part in parts if part)
 
 
+def is_redundant_claude_code_system(message: dict[str, Any]) -> bool:
+    if str(message.get("role", "")).lower() != "system":
+        return False
+    text = message_text(message.get("content"))
+    return (
+        "You are Claude Code, Anthropic's official CLI" in text
+        or "x-anthropic-billing-header:" in text
+    )
+
+
 def render_messages(messages: list[dict[str, Any]]) -> str:
     """Render an OpenAI transcript into one self-contained Harness prompt.
 
@@ -55,6 +65,11 @@ def render_messages(messages: list[dict[str, Any]]) -> str:
         "",
     ]
     for item in messages:
+        # Cherry Studio Agent injects Claude Code's complete system prompt.
+        # Remote Harness already has its own agent instructions and tools, so
+        # forwarding this duplicate prompt wastes substantial context tokens.
+        if is_redundant_claude_code_system(item):
+            continue
         role = str(item.get("role", "user")).upper()
         name = item.get("name")
         label = f"{role} ({name})" if name else role
