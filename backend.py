@@ -242,6 +242,11 @@ class RemoteHarnessBackend:
                     origin=self.settings.remote_url,
                     open_timeout=20,
                     close_timeout=5,
+                    # The hosted gateway may not answer protocol-level pings
+                    # while a long Harness tool call is running. Its event
+                    # stream is still healthy, so rely on remote_timeout below
+                    # instead of websockets' 20-second keepalive timeout.
+                    ping_interval=None,
                     max_size=64 * 1024 * 1024,
                 ) as socket:
                     await self._rpc("session.prompt", {
