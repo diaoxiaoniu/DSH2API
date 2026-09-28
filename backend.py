@@ -179,7 +179,9 @@ class RemoteHarnessBackend:
 
     def __init__(self, settings: Settings):
         self.settings = settings
-        self._lock = asyncio.Lock()
+        # Every remote request owns an independent Harness session, so they can
+        # run concurrently. Keep a generous cap to avoid accidental floods.
+        self._concurrency = asyncio.Semaphore(8)
 
     def _cookie(self) -> str:
         path = Path(self.settings.auth_file).expanduser()
@@ -235,7 +237,7 @@ class RemoteHarnessBackend:
     async def run(self, messages: list[dict[str, Any]]) -> RunOutput:
         cookie = self._cookie()
         session_id = f"session-{uuid.uuid4()}"
-        async with self._lock:
+        async with self._concurrency:
             await self._rpc("session.create", {"sessionId": session_id}, cookie)
             ws_url = self.settings.remote_url.replace("https://", "wss://", 1).replace("http://", "ws://", 1)
             try:
@@ -297,6 +299,11 @@ class RemoteHarnessBackend:
                             reason = (event.get("data") or {}).get("reason")
                             turn_reason = reason.get("kind", "completed") if isinstance(reason, dict) else str(reason or "completed")
                             if turn_reason in {"error", "blocked", "aborted"} and not last_text:
+                                error = reason.get("error") if isinstance(reason, dict) else None
+                                if isinstance(error, dict):
+                                    code = str(error.get("code") or turn_reason).upper()
+                                    message = str(error.get("message") or "Harness turn failed")
+                                    raise BackendRunError(f"{code}: {message}")
                                 raise BackendRunError(f"Harness turn ended with {turn_reason}")
                             if not last_text:
                                 raise BackendRunError("Harness turn completed without an assistant message")
