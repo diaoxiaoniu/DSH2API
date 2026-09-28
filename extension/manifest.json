@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "DSH2API 登录导入",
+  "version": "0.1.0",
+  "description": "把当前 LightVela DeepSeek Harness 登录态导入本机 DSH2API。",
+  "permissions": ["activeTab", "cookies", "storage"],
+  "host_permissions": [
+    "https://*.dsh.lightvela.tech/*",
+    "http://127.0.0.1/*"
+  ],
+  "action": {
+    "default_title": "DSH2API 登录导入",
+    "default_popup": "popup.html"
+  }
+}

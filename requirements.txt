@@ -1,0 +1,5 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.32,<1
+deepseek-harness-sdk>=0.1
+httpx>=0.28,<1
+websockets>=15,<17

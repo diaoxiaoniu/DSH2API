@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DSH2API 登录导入</title>
+  <style>
+    body{font:14px system-ui;width:330px;margin:0;padding:18px;background:#111827;color:#f9fafb}
+    h1{font-size:17px;margin:0 0 14px}label{display:block;margin:10px 0 5px;color:#cbd5e1}
+    input{box-sizing:border-box;width:100%;padding:9px;border:1px solid #475569;border-radius:7px;background:#0f172a;color:#fff}
+    button{width:100%;margin-top:14px;padding:10px;border:0;border-radius:7px;background:#7c3aed;color:#fff;font-weight:650;cursor:pointer}
+    #status{min-height:20px;margin-top:12px;color:#c4b5fd;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <h1>导入 LightVela DSH 登录态</h1>
+  <label for="server">本机服务</label>
+  <input id="server" value="http://127.0.0.1:18611">
+  <label for="key">DSH2API Key</label>
+  <input id="key" type="password" placeholder="读取 dsh2api/.env">
+  <button id="import">读取并导入</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
